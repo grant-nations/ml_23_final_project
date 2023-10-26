@@ -32,3 +32,15 @@ def normalize(df):
     X /= np.std(X, axis = 0) # normalize the data
     return pd.DataFrame(X)
 
+def split(df, train_pct, validate_pct, seed=42):
+    # split the training data
+    # from https://stackoverflow.com/questions/38250710/how-to-split-data-into-3-sets-train-validation-and-test
+
+    np.random.seed(seed)
+
+    # test_size = 1 - (train_pct + validate_pct)
+
+    train, validate, test = np.split(df.sample(frac=1, random_state=seed), [
+                                    int(train_pct*len(df)), int((train_pct + validate_pct)*len(df))])
+    
+    return pd.DataFrame(train), pd.DataFrame(validate), pd.DataFrame(test)

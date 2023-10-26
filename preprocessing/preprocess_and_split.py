@@ -38,8 +38,11 @@ for (df, data_type) in zip([train_df, test_df], ["train", "test"]):
         validate_split_y.to_csv(validate_split_y_path, header=None, index=False)
         test_split_y.to_csv(test_split_y_path, header=None, index=False)
 
-    if data_type == "train":
         df = df.iloc[:, :-1]  # remove labels from training data
+
+    if data_type == "test":
+        # remove the id column from the test data
+        df = df.iloc[:, 1:]
 
     df = encode_categorical(df)
     df = fill_missing_values(df)

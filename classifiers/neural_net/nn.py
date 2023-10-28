@@ -3,15 +3,17 @@ from torch import nn
 import numpy as np
 
 class BinClassificationNN(nn.Module):
-    def __init__(self):
+    def __init__(self, dropout_p=0.2):
         super().__init__()
         self.flatten = nn.Flatten()
         self.linear_relu_stack = nn.Sequential(
-            nn.Linear(14, 128), # input dimension is shape (14,)
+            nn.Linear(14, 64), # input dimension is shape (14,)
             nn.ReLU(),
-            nn.Linear(128, 64),
+            nn.Dropout(p=dropout_p),
+            nn.Linear(64, 32),
             nn.ReLU(),
-            nn.Linear(64, 1),
+            nn.Dropout(p=dropout_p),
+            nn.Linear(32, 1),
             nn.Sigmoid() # squashes output between 0 and 1 for probability
         )
 

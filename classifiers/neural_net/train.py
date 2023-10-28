@@ -2,6 +2,10 @@ import torch
 import numpy as np
 
 def train(dataloader, model, loss_fn, optimizer, device, print_every=100):
+
+    iterations_per_epoch = len(dataloader)
+    print(f"Iterations per epoch: {iterations_per_epoch}")
+
     size = len(dataloader.dataset)
     model.train()
     for batch, (X, y) in enumerate(dataloader):
@@ -21,7 +25,7 @@ def train(dataloader, model, loss_fn, optimizer, device, print_every=100):
             print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
 
 
-def validate(dataloader, model, loss_fn, device):
+def validate(dataloader, model, loss_fn, device, dataset_name="Validation"):
     size = len(dataloader.dataset)
     num_batches = len(dataloader)
     model.eval()
@@ -35,26 +39,7 @@ def validate(dataloader, model, loss_fn, device):
             correct += (pred == y).type(torch.float).sum().item()
     validation_loss /= num_batches
     correct /= size
-    print(f"Validation Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {validation_loss:>8f} \n")
-    
-    return correct
-
-
-def test(dataloader, model, loss_fn, device):
-    size = len(dataloader.dataset)
-    num_batches = len(dataloader)
-    model.eval()
-    test_loss, correct = 0, 0
-    with torch.no_grad():
-        for X, y in dataloader:
-            X, y = X.to(device), y.to(device)
-            pred = model(X)
-            test_loss += loss_fn(pred, y).item()
-            pred = torch.round(pred)
-            correct += (pred == y).type(torch.float).sum().item()
-    test_loss /= num_batches
-    correct /= size
-    print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
+    print(f"{dataset_name} Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {validation_loss:>8f} \n")
     
     return correct
 

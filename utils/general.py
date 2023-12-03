@@ -1,5 +1,4 @@
 import os
-import re
 
 def generate_unique_filename(filename):
     if not os.path.exists(filename):

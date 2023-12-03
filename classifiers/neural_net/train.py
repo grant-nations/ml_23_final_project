@@ -1,14 +1,36 @@
 import torch
 import numpy as np
 
-def train(dataloader, model, loss_fn, optimizer, device, print_every=100):
 
-    iterations_per_epoch = len(dataloader)
-    print(f"Iterations per epoch: {iterations_per_epoch}")
+def train(train_dataloader,
+          validate_dataloader,
+          model,
+          loss_fn,
+          optimizer,
+          device,
+          num_epochs,
+          print_every=10,
+          patience=1,
+          min_delta=0.0):
+    
+    early_stopper = EarlyStopper(patience=patience, min_delta=min_delta)
+    for t in range(num_epochs):
+        print(f"\nEpoch {t+1}\n-------------------------------")
+        train_loss = train_epoch(train_dataloader, model, loss_fn, optimizer, device)
+        validation_loss = validate(validate_dataloader, model, loss_fn, device)
+        if early_stopper.early_stop(validation_loss):
+            print(f"validation loss increased by {min_delta} or more for {patience} epochs")
+            break
 
-    size = len(dataloader.dataset)
+        if t % print_every == 0:
+            print(f"train loss: {train_loss:.3f}, validation loss: {validation_loss:.3f}")
+
+
+def train_epoch(dataloader, model, loss_fn, optimizer, device):
     model.train()
-    for batch, (X, y) in enumerate(dataloader):
+    loss = 0
+
+    for (X, y) in dataloader:
         X, y = X.to(device), y.to(device)
 
         # compute prediction error
@@ -20,13 +42,11 @@ def train(dataloader, model, loss_fn, optimizer, device, print_every=100):
         optimizer.step()
         optimizer.zero_grad()
 
-        if batch % print_every == 0:
-            loss, current = loss.item(), batch * len(X)
-            print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
+    return loss.item()
 
 
-def validate(dataloader, model, loss_fn, device, dataset_name="Validation"):
-    size = len(dataloader.dataset)
+def validate(dataloader, model, loss_fn, device):
+    # size = len(dataloader.dataset)
     num_batches = len(dataloader)
     model.eval()
     validation_loss, correct = 0, 0
@@ -36,14 +56,15 @@ def validate(dataloader, model, loss_fn, device, dataset_name="Validation"):
             pred = model(X)
             validation_loss += loss_fn(pred, y).item()
             pred = torch.round(pred)
-            correct += (pred == y).type(torch.float).sum().item()
-    validation_loss /= num_batches
-    correct /= size
-    print(f"{dataset_name} Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {validation_loss:>8f} \n")
-    
-    return correct
+            # correct += (pred == y).type(torch.float).sum().item()
 
-def evaluate(dataloader, model, device):
+    validation_loss /= num_batches
+
+    # correct /= size
+    return validation_loss
+
+
+def predict(dataloader, model, device):
     model.eval()
     predictions = []
     with torch.no_grad():
@@ -52,5 +73,24 @@ def evaluate(dataloader, model, device):
             pred = model(X)
             pred = torch.round(pred)
             predictions.append(pred.numpy().item())
-    
+
     return np.array(predictions)
+
+
+# below is taken from https://stackoverflow.com/a/73704579/14111683
+class EarlyStopper:
+    def __init__(self, patience=1, min_delta=0):
+        self.patience = patience
+        self.min_delta = min_delta
+        self.counter = 0
+        self.min_validation_loss = float('inf')
+
+    def early_stop(self, validation_loss):
+        if validation_loss < self.min_validation_loss:
+            self.min_validation_loss = validation_loss
+            self.counter = 0
+        elif validation_loss > (self.min_validation_loss + self.min_delta):
+            self.counter += 1
+            if self.counter >= self.patience:
+                return True
+        return False

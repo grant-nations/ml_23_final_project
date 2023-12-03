@@ -3,7 +3,7 @@ from classifiers.neural_net.dataset import IncomeDataset
 from classifiers.neural_net.nn import BinClassificationNN
 from torch.utils.data import DataLoader
 import torch
-from classifiers.neural_net.train import evaluate
+from classifiers.neural_net.train import predict
 from utils.general import generate_unique_filename
 import pandas as pd
 
@@ -34,7 +34,7 @@ test_dataloader = DataLoader(comp_test_data)
 model = BinClassificationNN().to(device)
 model.load_state_dict(torch.load(os.path.join(MODEL_SAVE_DIR, MODEL_NAME)))
 
-predictions = evaluate(test_dataloader, model, device)
+predictions = predict(test_dataloader, model, device)
 
 predictions_filepath = os.path.join(PREDICTIONS_DIR, PREDICTIONS_FILENAME)
 predictions_filepath = generate_unique_filename(predictions_filepath)

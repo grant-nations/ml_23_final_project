@@ -2,7 +2,6 @@ from classifiers.neural_net.nn import BinClassificationNN
 from classifiers.neural_net.dataset import IncomeDataset
 from torch.utils.data import DataLoader
 import os
-from utils.cade_gpu import define_gpu_to_use
 import torch
 from classifiers.neural_net.train import train, validate
 from utils.general import generate_unique_filename
@@ -11,14 +10,14 @@ from utils.general import generate_unique_filename
 
 CADE = False
 MODEL_SAVE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "classifiers", "neural_net", "saved_models")
-MODEL_NAME = "nn_1"
+MODEL_NAME = "nn_5"
 
 ############# HYPERPARAMETERS #############
-BATCH_SIZE = 128
-NUM_EPOCHS = 20
-LEARNING_RATE = 2.5e-3
+BATCH_SIZE = 64
+NUM_EPOCHS = 100
+LEARNING_RATE = 3.5e-3
 WEIGHT_DECAY = 1e-5
-DROPOUT_P = 0.5
+DROPOUT_P = 0.25
 ############################################
 
 
@@ -32,9 +31,6 @@ validation_data = IncomeDataset(input_filepath=os.path.join(split_data_dir, "val
 
 train_dataloader = DataLoader(training_data, batch_size=BATCH_SIZE, shuffle=True)
 val_dataloader = DataLoader(validation_data)
-
-if CADE:
-    define_gpu_to_use(4000)  # 4GB of memory
 
 # Get cpu, gpu or mps device for training.
 device = (
@@ -56,14 +52,17 @@ optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay=
 best_val_acc = 0
 best_model_state = None
 for t in range(NUM_EPOCHS):
-    print(f"Epoch {t+1}\n-------------------------------")
+    print(f"\nEpoch {t+1}\n-------------------------------")
     train(train_dataloader, model, loss_fn, optimizer, device)
-    validate(train_dataloader, model, loss_fn, device, dataset_name="Train")
-    pred_acc = validate(val_dataloader, model, loss_fn, device, dataset_name="Validation")
 
-    if pred_acc > best_val_acc:
-        best_val_acc = pred_acc
-        best_model_state = model.state_dict()
+validate(train_dataloader, model, loss_fn, device, dataset_name="Train")
+pred_acc = validate(val_dataloader, model, loss_fn, device, dataset_name="Validation")
+
+    # if pred_acc > best_val_acc:
+    #     best_val_acc = pred_acc
+    #     best_model_state = model.state_dict()
+
+best_model_state = model.state_dict()
 
 model_save_path = os.path.join(MODEL_SAVE_DIR, MODEL_NAME)
 model_save_path = generate_unique_filename(model_save_path)

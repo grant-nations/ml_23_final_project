@@ -9,7 +9,7 @@ import pandas as pd
 
 CADE = False
 MODEL_SAVE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "classifiers", "neural_net", "saved_models")
-MODEL_NAME = "nn_4"
+MODEL_NAME = "nn_final-1"
 PREDICTIONS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "predictions")
 PREDICTIONS_FILENAME = f"predictions_{MODEL_NAME}.csv"
 
@@ -27,7 +27,8 @@ print(f"Using {device} device")
 
 proc_data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "processed")
 
-comp_test_data = IncomeDataset(input_dataframe=os.path.join(proc_data_dir, "test_input.csv"))
+comp_test_df = pd.read_csv(os.path.join(proc_data_dir, "test_input.csv"), header=None)
+comp_test_data = IncomeDataset(comp_test_df)
 
 test_dataloader = DataLoader(comp_test_data)
 

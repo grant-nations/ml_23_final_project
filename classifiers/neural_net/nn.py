@@ -1,38 +1,54 @@
-import torch
 from torch import nn
-import numpy as np
 import torch.nn.init as init
 
+
 class BinClassificationNN(nn.Module):
-    def __init__(self, dropout_p=0.2):
+    def __init__(self,
+                 dropout_probs=[0.1],
+                 hidden_dims=[32],
+                 batch_norm=True
+                 ):
         super().__init__()
         self.flatten = nn.Flatten()
-        self.linear_relu_stack = nn.Sequential(
-            nn.Linear(14, 32), # input dimension is shape (14,)
-            nn.ReLU(),
-            nn.Dropout(p=dropout_p),
-            # nn.Linear(64, 32),
-            # nn.ReLU(),
-            # nn.Dropout(p=dropout_p),
-            nn.Linear(32, 1),
-            nn.Sigmoid() # squashes output between 0 and 1 for probability
-        )
 
-    #     self.apply(self._init_weights)
-
-    # def _init_weights(self, m):
-    #     if isinstance(m, nn.Linear):
-    #         init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='relu')
-    #         if m.bias is not None:
-    #             init.constant_(m.bias, 0)
-
-# TODO: add inverted dropout layers
-# TODO: add batch normalization layers ?
-# TODO: whiten data ?
-# TODO: residual network?
+        if batch_norm:
+            if len(hidden_dims) == 1:
+                self.stack = nn.Sequential(
+                    nn.Linear(14, hidden_dims[0]),  # input dimension is shape (14,)
+                    nn.BatchNorm1d(hidden_dims[0]),
+                    nn.ReLU(),
+                    nn.Dropout(p=dropout_probs[0]),
+                    nn.Linear(hidden_dims[0], 1),
+                    nn.Sigmoid()  # squashes output between 0 and 1 for probability
+                )
+            elif len(hidden_dims) == 2:
+                self.stack = nn.Sequential(
+                    nn.Linear(14, hidden_dims[0]),  # input dimension is shape (14,)
+                    nn.BatchNorm1d(hidden_dims[0]),
+                    nn.ReLU(),
+                    nn.Dropout(p=dropout_probs[0]),
+                    nn.Linear(hidden_dims[0], hidden_dims[1]),
+                    nn.BatchNorm1d(hidden_dims[1]),
+                    nn.ReLU(),
+                    nn.Dropout(p=dropout_probs[1]),
+                    nn.Linear(hidden_dims[1], 1),
+                    nn.Sigmoid()  # squashes output between 0 and 1 for probability
+                )
+            else:
+                raise ValueError("Only 1 or 2 hidden layers supported.")
+        else:
+            self.stack = nn.Sequential(
+                nn.Linear(14, hidden_dims[0]),  # input dimension is shape (14,)
+                nn.ReLU(),
+                nn.Dropout(p=dropout_probs[0]),
+                # nn.Linear(hidden_dims[0], hidden_dims[1]),
+                # nn.ReLU(),
+                # nn.Dropout(p=dropout_probs[1]),
+                nn.Linear(hidden_dims[0], 1),
+                nn.Sigmoid()  # squashes output between 0 and 1 for probability
+            )
 
     def forward(self, x):
         x = self.flatten(x)
-        p = self.linear_relu_stack(x)
+        p = self.stack(x)
         return p
-    

@@ -25,8 +25,10 @@ def train(train_dataloader,
                 return t
 
         if t % print_every == 0:
-            print(f"train loss: {train_loss:.3f}, validation loss: {validation_loss:.3f}")
-            print(f"accuracy: {acc:.3f}")
+            print(f"train loss: {train_loss:.3f}")
+            if validate_dataloader is not None:
+                print(f"validation loss: {validation_loss:.3f}")
+                print(f"accuracy: {acc:.3f}")
 
 
     return num_epochs

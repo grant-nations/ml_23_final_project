@@ -16,7 +16,9 @@ BATCH_SIZE = 64
 NUM_EPOCHS = 100
 LEARNING_RATE = 3.5e-3
 WEIGHT_DECAY = 1e-5
-DROPOUT_P = 0.25
+DROPOUT_PROBS = [0.1, 0.1]
+HIDDEN_DIMS = [32, 32]
+BATCH_NORM = True
 ############################################
 
 # use GPU if available
@@ -32,8 +34,8 @@ print(f"Using {device} device")
 split_data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "processed")
 
 # get training data
-input_dataframe = pd.read_csv(os.path.join(split_data_dir, "train_input.csv"))
-labels_dataframe = pd.read_csv(os.path.join(split_data_dir, "train_labels.csv"))
+input_dataframe = pd.read_csv(os.path.join(split_data_dir, "train_input.csv"), header=None)
+labels_dataframe = pd.read_csv(os.path.join(split_data_dir, "train_labels.csv"), header=None)
 
 training_data = IncomeDataset(input_dataframe=input_dataframe,
                               labels_dataframe=labels_dataframe)
@@ -47,6 +49,8 @@ total_samples = 0
 avg_epochs_elapsed = 0
 
 for k in range(K_FOLDS):
+    # if k < 4:
+    #     continue
 
     print(f"\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\nFold {k}\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n")
 
@@ -69,7 +73,7 @@ for k in range(K_FOLDS):
     val_dataloader = DataLoader(IncomeDataset(input_dataframe=val_X, labels_dataframe=val_y))
 
     # create model
-    model = BinClassificationNN(dropout_p=DROPOUT_P).to(device)
+    model = BinClassificationNN().to(device)
     print(model)
     loss_fn = torch.nn.BCELoss()  # binary cross entropy loss
     optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY)
@@ -92,7 +96,7 @@ print(f"Average validation accuracy: {total_correct / total_samples:.3f}")
 # train on entire training set
 train_dataloader = DataLoader(training_data, batch_size=BATCH_SIZE, shuffle=True)
 
-model = BinClassificationNN(dropout_p=DROPOUT_P).to(device)
+model = BinClassificationNN().to(device)
 print(model)
 
 loss_fn = torch.nn.BCELoss()  # binary cross entropy loss

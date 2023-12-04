@@ -27,7 +27,7 @@ print(f"Using {device} device")
 
 proc_data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "processed")
 
-comp_test_data = IncomeDataset(input_filepath=os.path.join(proc_data_dir, "test_input.csv"))
+comp_test_data = IncomeDataset(input_dataframe=os.path.join(proc_data_dir, "test_input.csv"))
 
 test_dataloader = DataLoader(comp_test_data)
 

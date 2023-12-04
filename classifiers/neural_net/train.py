@@ -12,18 +12,24 @@ def train(train_dataloader,
           print_every=10,
           patience=1,
           min_delta=0.0):
-    
+
     early_stopper = EarlyStopper(patience=patience, min_delta=min_delta)
     for t in range(num_epochs):
         print(f"\nEpoch {t+1}\n-------------------------------")
         train_loss = train_epoch(train_dataloader, model, loss_fn, optimizer, device)
-        validation_loss = validate(validate_dataloader, model, loss_fn, device)
-        if early_stopper.early_stop(validation_loss):
-            print(f"validation loss increased by {min_delta} or more for {patience} epochs")
-            break
+
+        if validate_dataloader is not None:
+            validation_loss, acc = validate(validate_dataloader, model, loss_fn, device)
+            if early_stopper.early_stop(validation_loss):
+                print(f"validation loss increased by {min_delta} or more for {patience} epochs")
+                return t
 
         if t % print_every == 0:
             print(f"train loss: {train_loss:.3f}, validation loss: {validation_loss:.3f}")
+            print(f"accuracy: {acc:.3f}")
+
+
+    return num_epochs
 
 
 def train_epoch(dataloader, model, loss_fn, optimizer, device):
@@ -46,7 +52,7 @@ def train_epoch(dataloader, model, loss_fn, optimizer, device):
 
 
 def validate(dataloader, model, loss_fn, device):
-    # size = len(dataloader.dataset)
+    size = len(dataloader.dataset)
     num_batches = len(dataloader)
     model.eval()
     validation_loss, correct = 0, 0
@@ -56,12 +62,12 @@ def validate(dataloader, model, loss_fn, device):
             pred = model(X)
             validation_loss += loss_fn(pred, y).item()
             pred = torch.round(pred)
-            # correct += (pred == y).type(torch.float).sum().item()
+            correct += (pred == y).type(torch.float).sum().item()
 
     validation_loss /= num_batches
 
-    # correct /= size
-    return validation_loss
+    correct /= size
+    return validation_loss, correct
 
 
 def predict(dataloader, model, device):

@@ -38,8 +38,6 @@ def split(df, train_pct, validate_pct, seed=42):
 
     np.random.seed(seed)
 
-    # test_size = 1 - (train_pct + validate_pct)
-
     train, validate, test = np.split(df.sample(frac=1, random_state=seed), [
                                     int(train_pct*len(df)), int((train_pct + validate_pct)*len(df))])
     

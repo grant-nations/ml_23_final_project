@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 import numpy as np
+import torch.nn.init as init
 
 class BinClassificationNN(nn.Module):
     def __init__(self, dropout_p=0.2):
@@ -17,6 +18,13 @@ class BinClassificationNN(nn.Module):
             nn.Sigmoid() # squashes output between 0 and 1 for probability
         )
 
+    #     self.apply(self._init_weights)
+
+    # def _init_weights(self, m):
+    #     if isinstance(m, nn.Linear):
+    #         init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='relu')
+    #         if m.bias is not None:
+    #             init.constant_(m.bias, 0)
 
 # TODO: add inverted dropout layers
 # TODO: add batch normalization layers ?

@@ -9,7 +9,7 @@ import pandas as pd
 
 CADE = False
 MODEL_SAVE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "classifiers", "neural_net", "saved_models")
-MODEL_NAME = "nn_final-1"
+MODEL_NAME = "nn_final-2"
 PREDICTIONS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "predictions")
 PREDICTIONS_FILENAME = f"predictions_{MODEL_NAME}.csv"
 

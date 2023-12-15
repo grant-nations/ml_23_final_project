@@ -4,9 +4,9 @@ import torch.nn.init as init
 
 class BinClassificationNN(nn.Module):
     def __init__(self,
-                 dropout_probs=[0.1],
-                 hidden_dims=[32],
-                 batch_norm=True
+                 dropout_probs=[0.3],
+                 hidden_dims=[64],
+                 batch_norm=False
                  ):
         super().__init__()
         self.flatten = nn.Flatten()

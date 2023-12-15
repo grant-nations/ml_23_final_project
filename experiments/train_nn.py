@@ -9,7 +9,7 @@ import pandas as pd
 import json
 
 MODEL_SAVE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "classifiers", "neural_net", "saved_models")
-MODEL_NAME = "nn_final"
+MODEL_NAME = "nn_final_final"
 
 json_save_path = os.path.join(MODEL_SAVE_DIR, f"{MODEL_NAME}_hyperparameters.json")
 json_save_path = generate_unique_filename(json_save_path)
@@ -18,22 +18,22 @@ json_save_path = generate_unique_filename(json_save_path)
 K_FOLDS = 5
 NUM_EPOCHS = 100
 
-BATCH_SIZES = [32, 64, 128]
-LEARNING_RATES = [1e-3, 1e-4, 1e-5]
-WEIGHT_DECAYS = [0.0, 1e-3, 1e-4]
-DROPOUT_PROBS = [0.1, 0.2, 0.3]
-HIDDEN_DIMS = [32, 64, 128]
-HIDDEN_LAYERS = [1, 2]
-BATCH_NORM = [True, False]
+# BATCH_SIZES = [32, 64, 128]
+# LEARNING_RATES = [1e-3, 1e-4, 1e-5]
+# WEIGHT_DECAYS = [0.0, 1e-3, 1e-4]
+# DROPOUT_PROBS = [0.1, 0.2, 0.3]
+# HIDDEN_DIMS = [32, 64, 128]
+# HIDDEN_LAYERS = [1, 2]
+# BATCH_NORM = [True, False]
 
 # for testing:
-# BATCH_SIZES = [32]
-# LEARNING_RATES = [1e-3]
-# WEIGHT_DECAYS = [0.0]
-# DROPOUT_PROBS = [0.1]
-# HIDDEN_DIMS = [32]
-# HIDDEN_LAYERS = [1]
-# BATCH_NORM = [True]
+BATCH_SIZES = [128]
+LEARNING_RATES = [1e-3]
+WEIGHT_DECAYS = [0.0]
+DROPOUT_PROBS = [0.3]
+HIDDEN_DIMS = [64]
+HIDDEN_LAYERS = [1]
+BATCH_NORM = [False]
 ############################################
 
 # use GPU if available
@@ -154,7 +154,7 @@ for batch_size in BATCH_SIZES:
                                 # train model
                                 avg_epochs_elapsed += train(
                                     train_dataloader, val_dataloader, model, loss_fn, optimizer, device,
-                                    num_epochs=NUM_EPOCHS, patience=2, min_delta=0.001, print_every=1)
+                                    num_epochs=NUM_EPOCHS, patience=5, min_delta=0.01, print_every=1)
 
                                 # get validation accuracy
                                 val_loss, correct_pct = validate(val_dataloader, model, loss_fn, device)

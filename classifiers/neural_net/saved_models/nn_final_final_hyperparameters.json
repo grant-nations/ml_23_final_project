@@ -1,0 +1,14 @@
+{
+    "batch_size": 128,
+    "lr": 0.001,
+    "w_decay": 0.0,
+    "dropout_probs": [
+        0.3
+    ],
+    "hidden_dims": [
+        64
+    ],
+    "batch_norm": false,
+    "hidden_layers": 1,
+    "avg_epochs_elapsed": 88
+}
